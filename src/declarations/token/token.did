@@ -1,4 +1,5 @@
 service : {
   balanceOf: (principal) -> (nat) query;
   faucet: () -> (nat);
+  transfer: (principal, nat) -> (bool);
 }
