@@ -4,6 +4,7 @@
       "main": "src/token/main.mo",
       "type": "motoko"
     },
+
     "token_assets": {
       "dependencies": [
         "token"
@@ -16,20 +17,33 @@
         "dist/token_assets/"
       ],
       "type": "assets"
-    }
+    },
+
+ "internet_identity": {
+  "type": "custom",
+  "candid": "internet_identity.did",
+  "wasm": "internet_identity.wasm",
+  "build": "echo Using local Internet Identity WASM",
+  "init_arg": "(record { assigned_user_number_range = record { 0; 1_000_000 } })"
+}
+
   },
+
   "defaults": {
     "build": {
       "args": "",
       "packtool": ""
     }
   },
+
   "dfx": "0.8.4",
+
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
       "type": "ephemeral"
     }
   },
+
   "version": 1
 }
