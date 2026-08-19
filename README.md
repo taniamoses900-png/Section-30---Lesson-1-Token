@@ -2,7 +2,7 @@
 
 A token project built on the Internet Computer using Motoko and React.
 
-This project was created as part of **Angela Yu's Web3 / Internet Computer course**. It follows the course lessons for creating a token canister, storing token balances with a Motoko `HashMap`, and interacting with the token through a React frontend.
+This project was created as part of **Angela Yu's Web3 / Internet Computer course**. It follows the course lessons for creating a token canister, storing token balances with a Motoko `HashMap`, implementing token transfers, and interacting with the token through a React frontend.
 
 ## Features
 
@@ -10,6 +10,7 @@ This project was created as part of **Angela Yu's Web3 / Internet Computer cours
 * Claim 10,000 DANG from the faucet
 * Transfer DANG tokens to another Principal
 * Store token balances in a Motoko `HashMap`
+* Use the `transfer()` function to distribute faucet tokens
 * Interact with the token canister through a React frontend
 
 ## Check Your Balance
@@ -20,27 +21,19 @@ This project was created as part of **Angela Yu's Web3 / Internet Computer cours
 dfx identity get-principal
 ```
 
-### 2. Save it somewhere
-
-For example:
-
-```text
-My Principal ID is: YOUR_PRINCIPAL_ID
-```
-
-### 3. Format and store it in a command-line variable
+### 2. Format and store it in a command-line variable
 
 ```bash
 OWNER_PUBLIC_KEY="principal \"$(dfx identity get-principal)\""
 ```
 
-### 4. Check that step 3 worked
+### 3. Check that it worked
 
 ```bash
 echo $OWNER_PUBLIC_KEY
 ```
 
-### 5. Check the owner's balance
+### 4. Check the owner's balance
 
 ```bash
 dfx canister call token balanceOf "( $OWNER_PUBLIC_KEY )"
@@ -50,11 +43,69 @@ dfx canister call token balanceOf "( $OWNER_PUBLIC_KEY )"
 
 The faucet gives the calling Principal **10,000 DANG**.
 
+The faucet uses the token's `transfer()` functionality to send the tokens from the token canister's balance to the Principal calling the faucet.
+
+### Using the command line
+
 ```bash
 dfx canister call token faucet
 ```
 
-The frontend also provides a **Gimme gimme** button for claiming tokens.
+### Using the React frontend
+
+The frontend provides a **Gimme gimme** button for claiming tokens.
+
+After a successful claim, the application displays:
+
+```text
+You received 10000 DANG!
+```
+
+## Fund the Token Canister
+
+Because the faucet now uses `transfer()`, the token canister must have DANG available before it can distribute tokens.
+
+### 1. Check the token canister ID
+
+```bash
+dfx canister id token
+```
+
+### 2. Save the canister ID into a command-line variable
+
+```bash
+CANISTER_PUBLIC_KEY="principal \"$(dfx canister id token)\""
+```
+
+### 3. Check that it worked
+
+```bash
+echo $CANISTER_PUBLIC_KEY
+```
+
+### 4. Transfer DANG to the token canister
+
+The initial token supply is **100,000,000 DANG**.
+
+For example, 50,000,000 DANG can be transferred to the token canister:
+
+```bash
+dfx canister call token transfer "($CANISTER_PUBLIC_KEY, 50000000)"
+```
+
+### 5. Check the token canister's balance
+
+```bash
+dfx canister call token balanceOf "($CANISTER_PUBLIC_KEY)"
+```
+
+The canister should then have:
+
+```text
+(50000000 : nat)
+```
+
+The canister uses this balance to distribute DANG through the faucet.
 
 ## Transfer DANG Tokens
 
@@ -76,9 +127,14 @@ After a successful transfer, the application displays:
 Transfer successful! Sent 1000 DANG.
 ```
 
-The transfer function checks that the calling Principal has enough DANG before moving the tokens to the recipient.
+The `transfer()` function checks that:
 
-### Test With a Second Identity
+* The transfer amount is greater than zero.
+* The calling Principal has enough DANG.
+* The sender's balance is reduced by the transfer amount.
+* The recipient's balance is increased by the transfer amount.
+
+## Test With a Second Identity
 
 A second local identity can be created for testing:
 
@@ -111,36 +167,40 @@ dfx canister call token balanceOf '(principal "YOUR_RECIPIENT_PRINCIPAL_ID")'
 For example, after transferring 1,000 DANG, the recipient should have:
 
 ```text
-(1_000 : nat)
+(1000 : nat)
 ```
 
-## Charge the Canister
+## Deploy the Project Locally
 
-### 1. Check the canister ID
+Start the local Internet Computer replica:
+
+```bash
+dfx start --background
+```
+
+Deploy the canisters:
+
+```bash
+dfx deploy
+```
+
+Get the token canister ID:
 
 ```bash
 dfx canister id token
 ```
 
-### 2. Save the canister ID into a command-line variable
+Start the React frontend:
 
 ```bash
-CANISTER_PUBLIC_KEY="principal \"$(dfx canister id token)\""
+npm start
 ```
 
-### 3. Check that it worked
-
-```bash
-echo $CANISTER_PUBLIC_KEY
-```
-
-The token canister in this project has a total supply of:
+The application is available at:
 
 ```text
-100,000,000 DANG
+http://localhost:8080
 ```
-
-Only transfer an amount that is available in the calling Principal's balance.
 
 ## Deploy the Project to the Live IC Network
 

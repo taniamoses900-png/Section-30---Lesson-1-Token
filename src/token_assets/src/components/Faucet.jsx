@@ -2,45 +2,34 @@ import React from "react";
 import { token } from "../../../declarations/token";
 
 function Faucet() {
-
-  async function handleClick() {
-    console.log("Faucet Button Clicked");
+  async function handleClick(event) {
+    event.preventDefault();
 
     try {
       const result = await token.faucet();
 
-      console.log("Faucet result:", result.toString());
-
-      if (result === 0n) {
-        alert("Already claimed!");
-      } else {
-        alert("You received 10,000 DANG!");
-      }
-
+      alert("You received " + result.toString() + " DANG!");
     } catch (error) {
       console.error("Faucet error:", error);
-      alert("Faucet failed. Check the console.");
+      alert("Faucet failed.");
     }
   }
 
   return (
-    <div className="blue window">
-      <h2>
-        <span role="img" aria-label="tap emoji">
-          🚰
-        </span>
-        Faucet
-      </h2>
+    <div className="window white">
+      <h2>🚰 Faucet</h2>
 
-      <label>
+      <p>
         Get your free DAngela tokens here! Claim 10,000 DANG coins to your account.
-      </label>
-
-      <p className="trade-buttons">
-        <button id="btn-payout" onClick={handleClick}>
-          Gimme gimme
-        </button>
       </p>
+
+      <form onSubmit={handleClick}>
+        <p className="trade-buttons">
+          <button type="submit">
+            Gimme gimme
+          </button>
+        </p>
+      </form>
     </div>
   );
 }

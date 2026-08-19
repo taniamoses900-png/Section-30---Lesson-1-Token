@@ -16,7 +16,6 @@ actor Token {
     Principal.hash
   );
 
-  // Give the owner the initial supply.
   balances.put(owner, totalSupply);
 
   public query func balanceOf(who : Principal) : async Nat {
@@ -26,21 +25,6 @@ actor Token {
     };
   };
 
-  public shared(msg) func faucet() : async Nat {
-    let caller = msg.caller;
-
-    let currentBalance = switch (balances.get(caller)) {
-      case null 0;
-      case (?balance) balance;
-    };
-
-    let newBalance = currentBalance + 10000;
-
-    balances.put(caller, newBalance);
-
-    return 10000;
-  };
-
   public shared(msg) func transfer(
     to : Principal,
     amount : Nat
@@ -48,7 +32,6 @@ actor Token {
 
     let caller = msg.caller;
 
-    // Don't allow zero-value transfers.
     if (amount == 0) {
       return false;
     };
@@ -58,7 +41,6 @@ actor Token {
       case (?balance) balance;
     };
 
-    // Sender must have enough tokens.
     if (senderBalance < amount) {
       return false;
     };
@@ -72,5 +54,17 @@ actor Token {
     balances.put(to, receiverBalance + amount);
 
     return true;
+  };
+
+  public shared(msg) func faucet() : async Nat {
+    let caller = msg.caller;
+
+    let result = await transfer(caller, 10000);
+
+    if (result) {
+      return 10000;
+    } else {
+      return 0;
+    };
   };
 }
