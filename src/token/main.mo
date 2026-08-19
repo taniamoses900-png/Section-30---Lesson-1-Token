@@ -20,11 +20,24 @@ actor Token {
   balances.put(owner, totalSupply);
 
   public query func balanceOf(who : Principal) : async Nat {
-    let balance = switch (balances.get(who)) {
+    switch (balances.get(who)) {
+      case null 0;
+      case (?result) result;
+    };
+  };
+
+  public shared(msg) func faucet() : async Nat {
+    let caller = msg.caller;
+
+    let currentBalance = switch (balances.get(caller)) {
       case null 0;
       case (?result) result;
     };
 
-    return balance;
+    let newBalance = currentBalance + 10000;
+
+    balances.put(caller, newBalance);
+
+    return 10000;
   };
 }

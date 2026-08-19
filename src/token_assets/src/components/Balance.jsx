@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Principal } from "@dfinity/principal";
+import { token } from "../../../declarations/token";
 
 function Balance() {
   const [balance, setBalance] = useState(null);
@@ -12,7 +14,16 @@ function Balance() {
       return;
     }
 
-    setBalance(100000000);
+    try {
+      const principal = Principal.fromText(principalId);
+      const result = await token.balanceOf(principal);
+
+      console.log("Balance from canister:", result.toString());
+
+      setBalance(result.toString());
+    } catch (error) {
+      console.error("Balance error:", error);
+    }
   }
 
   return (
@@ -38,7 +49,7 @@ function Balance() {
 
       {balance !== null && (
         <p>
-          This account has a balance of {balance} R.
+          This account has a balance of {balance} DANG.
         </p>
       )}
     </div>
